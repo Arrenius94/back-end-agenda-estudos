@@ -1,4 +1,6 @@
 import { User } from "../models/index.js";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 
 export async function loginController(req, res) {
   console.log("LOGIN");
@@ -13,8 +15,11 @@ export async function loginController(req, res) {
     if (user.senha !== senha) {
       return res.status(401).json({ error: "Senha incorreta" });
     }
-    // Aqui você pode gerar um token JWT se quiser autenticação real
-    res.status(200).json({ message: "Login realizado com sucesso", user });
+    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: parseInt(process.env.JWT_EXPIRES),
+    });
+
+    res.status(200).json({ message: "Login realizado com sucesso", token, user });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

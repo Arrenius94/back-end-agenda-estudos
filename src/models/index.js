@@ -37,6 +37,10 @@ const Tarefa = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    users_id: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     descricao: {
       type: DataTypes.TEXT,
       allowNull: true,
@@ -58,11 +62,13 @@ const Tarefa = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       field: "updateAt", // define explicitamente o nome no banco
+      defaultValue: Sequelize.NOW, // Valor padrão
     },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: true,
       field: "createdAt", // também pode ser explícito
+      defaultValue: Sequelize.NOW, // Valor padrão
     },
   },
   {
