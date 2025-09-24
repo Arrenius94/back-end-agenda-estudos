@@ -4,10 +4,16 @@ require("dotenv").config();
 let sequelize;
 
 if (process.env.NODE_ENV === "production") {
-  // Conecta ao NeonDB
-  sequelize = new Sequelize(process.env.PROD_DB_URL);
+  sequelize = new Sequelize(process.env.PROD_DB_URL, {
+    dialect: "postgres",
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
+    },
+  });
 } else {
-  // Conecta ao localhost (desenvolvimento)
   sequelize = new Sequelize(process.env.DEV_DB_NAME, process.env.DEV_DB_USER, process.env.DEV_DB_PASS, {
     host: process.env.DEV_DB_HOST,
     dialect: process.env.DEV_DB_DIALECT,
