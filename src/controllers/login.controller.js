@@ -1,6 +1,6 @@
 import { User } from "../models/index.js";
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import bcrypt from "bcrypt";
 
 export async function loginController(req, res) {
   console.log("LOGIN");
@@ -12,7 +12,9 @@ export async function loginController(req, res) {
     if (!user) {
       return res.status(401).json({ error: "Usuário não encontrado" });
     }
-    if (user.senha !== senha) {
+
+    const senhaValida = await bcrypt.compare(senha, user.senha);
+    if (!senhaValida) {
       return res.status(401).json({ error: "Senha incorreta" });
     }
     const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {

@@ -1,25 +1,32 @@
 {
   "development": {
-    "username": "root",
-    "password": "",
-    "database": "clinica_array",
+    "username": "postgres",
+    "password": "postgres",
+    "database": "agenda",
     "host": "localhost",
-    "port": 3306,
-    "dialect": "mysql"
+    "port": 5432,
+    "dialect": "postgres"
   },
   "test": {
-    "username": "your_username",
-    "password": "your_password",
-    "database": "your_test_database_name",
+    "username": "postgres",
+    "password": "postgres",
+    "database": "agenda",
     "host": "localhost",
-    "port": 3306,
-    "dialect": "mysql"
+    "port": 5432,
+    "dialect": "postgres"
   },
   "production": {
-    "username": "your_username",
-    "password": "your_password",
-    "database": "your_production_database_name",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "neondb_owner",
+    "password": "npg_dOvMjE2fXZD0",
+    "database": "neondb",
+    "host": "ep-plain-sea-ad9ybr4a-pooler.c-2.us-east-1.aws.neon.tech",
+    "port": 5432,
+    "dialect": "postgres",
+    "dialectOptions": {
+      "ssl": {
+        "require": true,
+        "rejectUnauthorized": false
+      }
+    }
   }
 }

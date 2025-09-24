@@ -13,10 +13,8 @@ export function verifyToken(req, res, next) {
   const token = auth.split(" ")[1];
 
   try {
-    // const secret = process.env.JWT_SECRET;
-    // jwt.verify(token, secret);
     const codejwt = jwt.verify(token, process.env.JWT_SECRET);
-    req.auth = codejwt;
+    req.user = codejwt;
     next();
   } catch (error) {
     return res.status(401).json({ error: "Token inválido ou expirado!" });

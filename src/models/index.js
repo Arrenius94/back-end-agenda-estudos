@@ -1,18 +1,25 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const config = require("../../config/config.json");
-console.log("config:", config.development);
-// Initialize Sequelize
-console.log(
-  config.development.database,
-  config.development.username,
-  config.development.password,
-  config.development.host
-);
-const sequelize = new Sequelize(config.development.database, config.development.username, config.development.password, {
-  host: config.development.host,
-  dialect: "mysql", // or 'postgres', 'sqlite', etc.
-});
+require("dotenv").config();
 
+let sequelize;
+
+if (process.env.NODE_ENV === "production") {
+  // Conecta ao NeonDB
+  sequelize = new Sequelize(process.env.PROD_DB_URL);
+} else {
+  // Conecta ao localhost (desenvolvimento)
+  sequelize = new Sequelize(process.env.DEV_DB_NAME, process.env.DEV_DB_USER, process.env.DEV_DB_PASS, {
+    host: process.env.DEV_DB_HOST,
+    dialect: process.env.DEV_DB_DIALECT,
+    port: process.env.DEV_DB_PORT,
+  });
+}
+
+// Testar conexão
+sequelize
+  .authenticate()
+  .then(() => console.log(`Conectado ao banco (${process.env.NODE_ENV || "development"}) com sucesso!`))
+  .catch((err) => console.error("Erro ao conectar:", err));
 // Define models
 const User = sequelize.define("Usuario", {
   nome: {

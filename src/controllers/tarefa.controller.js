@@ -1,16 +1,21 @@
 import { Tarefa } from "../models/index.js";
-import { Op } from "sequelize";
+import { Op, fn, col, where } from "sequelize"; // ou require se não usa ESModules
 
 // ...existing user controllers...
 
 // Criar tarefa
 export async function createTarefaController(req, res) {
   try {
-    if (!IsDateValid(req.body.data_conclusao)) {
-      return res.status(400).json({ error: `Data de conclusão inválida!` });
+    // console.log("req.body recebido:", req.body); // <-- Adicione aqui
+    const dataError = IsDateValid(req.body.data_conclusao);
+    if (dataError) {
+      return res.status(400).json({ error: dataError });
     }
 
-    const tarefa = await Tarefa.create(req.body);
+    const tarefa = await Tarefa.create({
+      ...req.body,
+      users_id: req.user.id,
+    });
     res.status(201).json(tarefa);
   } catch (error) {
     console.error("Erro ao criar tarefa:", error);
@@ -19,14 +24,19 @@ export async function createTarefaController(req, res) {
 }
 
 function IsDateValid(date) {
-  const dateTime = Date.parse(date);
-  if (isNaN(dateTime)) {
-    return false;
+  if (!date) return "Data de conclusão é obrigatória!";
+
+  const [ano, mes, dia] = date.split("-");
+  const inputDay = new Date(ano, mes - 1, dia, 12);
+
+  const today = new Date();
+  const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
+
+  if (inputDay.getTime() < todayDay.getTime()) {
+    return "A data de conclusão não pode ser menor que a data atual!";
   }
-  if (dateTime <= Date.now) {
-    return false;
-  }
-  return true;
+
+  return null;
 }
 
 // Listar todas as tarefas
@@ -72,7 +82,7 @@ export async function listTarefasController(req, res) {
     if (search) {
       where = {
         ...where,
-        [Op.or]: [{ titulo: { [Op.like]: `%${search}%` } }, { descricao: { [Op.like]: `%${search}%` } }],
+        [Op.or]: [{ titulo: { [Op.iLike]: `%${search}%` } }, { descricao: { [Op.iLike]: `%${search}%` } }],
       };
     }
 
@@ -111,27 +121,17 @@ export async function readTarefaController(req, res) {
 //BUSCAR TAREFA PELO TERMOS
 export async function searchTarefasController(req, res) {
   try {
-    const search = req.query.search || ""; // termo enviado pelo input, via query param
+    const search = req.query.search || "";
 
     const tarefas = await Tarefa.findAll({
       where: {
-        [Op.or]: [
-          {
-            titulo: {
-              [Op.like]: `%${search}%`,
-            },
-          },
-          {
-            descricao: {
-              [Op.like]: `%${search}%`,
-            },
-          },
-        ],
+        [Op.or]: [{ titulo: { [Op.iLike]: `%${search}%` } }, { descricao: { [Op.iLike]: `%${search}%` } }],
       },
     });
 
     res.status(200).json(tarefas);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 }

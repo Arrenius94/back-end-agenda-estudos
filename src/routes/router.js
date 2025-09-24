@@ -4,7 +4,9 @@ const {
   readController,
   updateController,
   deleteController,
+  changePasswordController,
   listUsersController,
+  getLoggedUserController,
 } = require("../controllers/index");
 
 const { loginController } = require("../controllers/login.controller");
@@ -25,12 +27,14 @@ const router = express.Router();
 router.post("/users", createController);
 router.get("/users/:id", readController);
 router.put("/users/:id", updateController);
+router.put("/users/:id/change-password", changePasswordController);
 router.delete("/users/:id", deleteController);
 router.get("/users", listUsersController);
 router.post("/login", loginController);
+router.get("/me", verifyToken, getLoggedUserController);
 
 // ROTAS TAREFAS
-router.post("/tarefas", createTarefaController);
+router.post("/tarefas", verifyToken, createTarefaController);
 router.get("/tarefas", verifyToken, listTarefasController);
 router.get("/tarefas/:id", verifyToken, readTarefaController);
 router.put("/tarefas/:id", updateTarefaController);
