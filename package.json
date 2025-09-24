@@ -4,8 +4,8 @@
   "description": "A simple Node.js API using Sequelize",
   "main": "src/app.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node src/app.js",
-    "dev": "cross-env NODE_ENV=development nodemon src/app.js",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
@@ -21,7 +21,6 @@
     "sequelize-cli": "^6.6.3"
   },
   "devDependencies": {
-    "cross-env": "^10.0.0",
     "nodemon": "^2.0.7"
   },
   "author": "Your Name",
