@@ -1,7 +1,7 @@
 import { User } from "../models/index.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-const { fn, col } = require("sequelize");
+import { fn, col } from "sequelize";
 
 export async function loginController(req, res) {
   console.log("LOGIN");
