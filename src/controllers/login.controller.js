@@ -8,7 +8,7 @@ export async function loginController(req, res) {
   const { email, senha } = req.body;
   console.log("email", email);
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ where: { email: email.toLowerCase() } });
     if (!user) {
       return res.status(401).json({ error: "Usuário não encontrado" });
     }
