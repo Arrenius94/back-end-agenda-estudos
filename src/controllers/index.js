@@ -69,7 +69,10 @@ export async function changePasswordController(req, res) {
 
       const samePasswords = await bcrypt.compare(newPassword, hashedPassword);
       if (samePasswords) {
-        return { validator: false, error: "A nova senha não pode ser igual a antiga" };
+        return {
+          validator: false,
+          error: "A nova senha não pode ser igual a antiga",
+        };
       }
       return { validator: true };
     }
