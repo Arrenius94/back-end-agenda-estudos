@@ -57,7 +57,7 @@ export async function changePasswordController(req, res) {
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    await user.update({ senha: hashedPassword }, { where: userId });
+    await user.update({ senha: hashedPassword });
 
     return res.status(200).json({ message: "Senha atualizada com sucesso" });
 

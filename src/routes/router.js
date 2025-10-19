@@ -10,6 +10,7 @@ const {
 } = require("../controllers/index");
 
 const { loginController } = require("../controllers/login.controller");
+const { resetSenha } = require("../controllers/resetSenha.controller");
 
 const {
   createTarefaController,
@@ -31,6 +32,7 @@ router.put("/users/:id/change-password", changePasswordController);
 router.delete("/users/:id", deleteController);
 router.get("/users", listUsersController);
 router.post("/login", loginController);
+router.post("/reset-password", resetSenha);
 router.get("/me", verifyToken, getLoggedUserController);
 
 // ROTAS TAREFAS
