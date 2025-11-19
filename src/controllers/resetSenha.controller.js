@@ -1,34 +1,58 @@
-import nodemailer from "nodemailer";
 import { User } from "../models/index.js";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-dotenv.config();
+import nodemailer from "nodemailer";
 
-const configuracaoEmail = {
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+dotenv.config();
+console.log("FROM_ADDRESS:", process.env.FROM_ADDRESS);
+
+// Configura o transporter via variáveis de ambiente (EMAIL_*)
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || "smtp.titan.email",
+  port: Number(process.env.EMAIL_PORT) || 465,
+  secure: process.env.EMAIL_SECURE === "true" || true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-};
+});
 
-// Função que envia o email
-export async function enviarEmail(destinatario, novaSenha) {
-  // Cria o transportador de email
-  const transportador = nodemailer.createTransport(configuracaoEmail);
+// Função que envia o email usando Resend
+async function enviarEmail(destinatario, novaSenha) {
+  try {
+    await transporter.sendMail({
+      from:
+        process.env.FROM_ADDRESS ||
+        `"Agenda Estudos" <${
+          process.env.EMAIL_USER || "no-reply@example.com"
+        }>`,
+      to: destinatario,
+      subject: "Sua nova senha - Agenda Estudos",
+      html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+        <h2 style="color: #333;">Olá!</h2>
+        <p style="font-size: 16px; color: #555;">
+          Você solicitou a redefinição de senha na Agenda Estudos.
+        </p>
+        <p style="font-size: 18px; color: #333; font-weight: bold;">
+          Sua nova senha é: <span style="color: #2a9d8f;">${novaSenha}</span>
+        </p>
+        <p style="font-size: 14px; color: #777;">
+          Recomendamos que você altere esta senha após o login para manter sua conta segura.
+        </p>
+        <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+        <p style="font-size: 12px; color: #aaa;">
+          Este é um e-mail automático, por favor, não responda.
+        </p>
+      </div>
+      `,
+    });
 
-  // Configura a mensagem
-  const mensagem = {
-    from: "agenda-estudos-contato@gmail.com",
-    to: destinatario,
-    subject: "Sua Nova Senha",
-    text: `Sua nova senha é: ${novaSenha}`,
-    html: `<p>Sua nova senha é: <strong>${novaSenha}</strong></p>`,
-  };
-
-  return transportador.sendMail(mensagem);
+    console.log("Email enviado com sucesso via SMTP");
+  } catch (error) {
+    console.error("Erro ao enviar email via SMTP:", error);
+    throw error;
+  }
 }
 
 export async function resetSenha(req, res) {
