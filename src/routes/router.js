@@ -10,10 +10,7 @@ const {
 } = require("../controllers/index");
 
 const { loginController } = require("../controllers/login.controller");
-const {
-  resetSenha,
-  smtpTest,
-} = require("../controllers/resetSenha.controller");
+const { resetSenha } = require("../controllers/resetSenha.controller");
 
 const {
   createTarefaController,
@@ -36,7 +33,6 @@ router.delete("/users/:id", deleteController);
 router.get("/users", listUsersController);
 router.post("/login", loginController);
 router.post("/reset-password", resetSenha);
-router.get("/smtp-test", smtpTest);
 router.get("/me", verifyToken, getLoggedUserController);
 
 // ROTAS TAREFAS
