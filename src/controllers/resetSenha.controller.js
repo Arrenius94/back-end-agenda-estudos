@@ -10,12 +10,26 @@ console.log("FROM_ADDRESS:", process.env.FROM_ADDRESS);
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || "smtp.titan.email",
   port: Number(process.env.EMAIL_PORT) || 465,
-  secure: process.env.EMAIL_SECURE === "true" || true,
+  secure: process.env.EMAIL_SECURE === "true",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  // timeouts to fail faster and give clearer logs
+  connectionTimeout: Number(process.env.EMAIL_CONN_TIMEOUT) || 10000,
+  greetingTimeout: Number(process.env.EMAIL_GREETING_TIMEOUT) || 10000,
+  socketTimeout: Number(process.env.EMAIL_SOCKET_TIMEOUT) || 10000,
 });
+
+// Verifica a conexão SMTP no startup e loga o resultado.
+transporter
+  .verify()
+  .then(() => {
+    console.log("SMTP: conexão com servidor bem-sucedida");
+  })
+  .catch((err) => {
+    console.error("SMTP: falha ao conectar/autorizar:", err);
+  });
 
 // Função que envia o email usando Resend
 async function enviarEmail(destinatario, novaSenha) {
@@ -83,5 +97,16 @@ export async function resetSenha(req, res) {
     return res.status(500).json({
       erro: "Erro ao resetar senha!",
     });
+  }
+}
+
+// Rota de teste para verificar conexão SMTP a partir do ambiente (Render)
+export async function smtpTest(req, res) {
+  try {
+    await transporter.verify();
+    return res.status(200).json({ ok: true, message: "SMTP OK" });
+  } catch (err) {
+    console.error("smtpTest error:", err);
+    return res.status(500).json({ ok: false, error: err.message || err });
   }
 }
