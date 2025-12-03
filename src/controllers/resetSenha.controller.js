@@ -7,25 +7,46 @@ dotenv.config();
 console.log("FROM_ADDRESS:", process.env.FROM_ADDRESS);
 
 // Configura o transporter via variáveis de ambiente (EMAIL_*)
+// Em produção preferir 465/SSL; em dev, 587/STARTTLS
+const isProd = process.env.NODE_ENV === "production";
+const defaultPort = isProd ? 465 : 587;
+const smtpPort = Number(process.env.EMAIL_PORT || defaultPort);
+const smtpSecure =
+  process.env.EMAIL_SECURE !== undefined
+    ? process.env.EMAIL_SECURE === "true"
+    : smtpPort === 465;
+
+if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  console.error("EMAIL_USER/EMAIL_PASS não configurados.");
+}
+
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST || "smtp.titan.email",
-  port: Number(process.env.EMAIL_PORT) || 465,
-  secure: process.env.EMAIL_SECURE === "true" || true,
+  port: smtpPort,
+  secure: smtpSecure,
+  requireTLS: !smtpSecure && smtpPort === 587,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+  tls: isProd ? {} : { rejectUnauthorized: false },
+  pool: true,
+  connectionTimeout: 8000,
+  greetingTimeout: 6000,
+  socketTimeout: 12000,
 });
 
 // Função que envia o email usando Resend
 async function enviarEmail(destinatario, novaSenha) {
   try {
+    // Falha rápida se credenciais ausentes
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      throw new Error("Credenciais SMTP ausentes (EMAIL_USER/EMAIL_PASS)");
+    }
     await transporter.sendMail({
       from:
         process.env.FROM_ADDRESS ||
-        `"Agenda Estudos" <${
-          process.env.EMAIL_USER || "no-reply@example.com"
-        }>`,
+        `"Agenda Estudos" <${process.env.EMAIL_USER}>`,
       to: destinatario,
       subject: "Sua nova senha - Agenda Estudos",
       html: `
