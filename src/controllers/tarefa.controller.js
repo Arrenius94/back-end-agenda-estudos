@@ -18,8 +18,10 @@ export async function createTarefaController(req, res) {
     });
     res.status(201).json(tarefa);
   } catch (error) {
-    console.error("Erro ao criar tarefa:", error);
-    res.status(400).json({ error: `Erro do catch!` });
+    console.error("Erro detalhado no terminal:", error);
+    const mensagemErro =
+      error.parent?.sqlMessage || error.message || "Erro desconhecido";
+    res.status(400).json({ error: mensagemErro });
   }
 }
 
@@ -30,7 +32,12 @@ function IsDateValid(date) {
   const inputDay = new Date(ano, mes - 1, dia, 12);
 
   const today = new Date();
-  const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 12);
+  const todayDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate(),
+    12,
+  );
 
   if (inputDay.getTime() < todayDay.getTime()) {
     return "A data de conclusão não pode ser menor que a data atual!";
@@ -82,7 +89,10 @@ export async function listTarefasController(req, res) {
     if (search) {
       where = {
         ...where,
-        [Op.or]: [{ titulo: { [Op.iLike]: `%${search}%` } }, { descricao: { [Op.iLike]: `%${search}%` } }],
+        [Op.or]: [
+          { titulo: { [Op.iLike]: `%${search}%` } },
+          { descricao: { [Op.iLike]: `%${search}%` } },
+        ],
       };
     }
 
@@ -125,7 +135,10 @@ export async function searchTarefasController(req, res) {
 
     const tarefas = await Tarefa.findAll({
       where: {
-        [Op.or]: [{ titulo: { [Op.iLike]: `%${search}%` } }, { descricao: { [Op.iLike]: `%${search}%` } }],
+        [Op.or]: [
+          { titulo: { [Op.iLike]: `%${search}%` } },
+          { descricao: { [Op.iLike]: `%${search}%` } },
+        ],
       },
     });
 
